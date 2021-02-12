@@ -39,4 +39,15 @@ GOOS=linux go build -o bin/main
 ```
 serverless deploy
 ```
-# awsFeeSendLine
+
+4. ポリシーをアタッチ
+- このままだと` is not authorized to perform: ce:GetCostAndUsage on resource: arn:aws:ce:us-east-1:`エラーが出るのでポリシーをアタッチする
+### 4-1：ポリシーの作成
+- IAM→ポリシーより`ポリシーの作成`を選択し以下の内容で作成する
+  - サービス：Cost Explorer Service
+  - アクション：GetCostAndUsage
+  - ポリシーの名前：任意（AmazonCostExplorerGetCostAccessとした）
+  
+### 4-2：lambdaに割り当てたロールに4-1で作成したポリシーをアタッチする
+- ロール（基本プロジェクト名 + us-east-1みたいな感じで自動生成される）を選択して4-1で作成したポリシーをアタッチする
+
