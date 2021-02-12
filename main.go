@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/costexplorer"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,12 +15,12 @@ import (
 	"strings"
 )
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env")
-	}
-}
+//func init() {
+//	err := godotenv.Load()
+//	if err != nil {
+//		log.Fatal("Error loading .env")
+//	}
+//}
 
 // LINE APIのレスポンス用
 type Response struct {
@@ -28,10 +29,10 @@ type Response struct {
 
 // 引数で受け取った文字列をLINE通知する
 func SendLine(result string) (*http.Response, error) {
-	accessToken := os.Getenv("TOKEN")
+	accessToken := os.Getenv("LINEnotyfyToken")
 	msg := result
 
-	URL := os.Getenv("LINE_POST_URL")
+	URL := os.Getenv("LINEpostURL")
 	u, err := url.ParseRequestURI(URL)
 	if err != nil {
 		log.Fatal(err)
@@ -112,7 +113,13 @@ func exitErrorf(msg string, args ...interface{}) {
 	os.Exit(1)
 }
 
-func main() {
+func HandleRequest(ctx context.Context) (string, error) {
 	billing := GetBilling()
-	SendLine(billing)
+	res, _ := SendLine(billing)
+	ctx.Done()
+	return res.Status, nil
+}
+
+func main() {
+	lambda.Start(HandleRequest)
 }
