@@ -13,6 +13,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //func init() {
@@ -62,10 +63,16 @@ func SendLine(result string) (*http.Response, error) {
 
 // AWSの使用料を返す
 func GetBilling() string {
-
 	//Must be in YYYY-MM-DD Format
-	start := "2021-01-01"
-	end := "2021-02-01"
+	year, monthBase, dayBase := time.Now().Date()
+	startMonth := fmt.Sprintf("%02d", monthBase-1)
+	endMonth := fmt.Sprintf("%02d", monthBase)
+	day := fmt.Sprintf("%02d", dayBase)
+	start := strconv.Itoa(year) + "-" + startMonth + "-" + day
+	if monthBase == 1 {
+		start = strconv.Itoa(year) + "-" + "12-" + day
+	}
+	end := strconv.Itoa(year) + "-" + endMonth + "-" + day
 	granularity := "MONTHLY"
 	metrics := []string{
 		"UnblendedCost",
